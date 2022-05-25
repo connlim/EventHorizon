@@ -22,7 +22,6 @@ jobs:
           path: designs
           format: png
           transparent: false
-          action-mode: all
 
       - name: Commit changed files
         uses: stefanzweifel/git-auto-commit-action@v4
