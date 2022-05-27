@@ -1,0 +1,162 @@
+---
+openapi: 3.1.0
+info:
+  title: Event Horizon
+  summary: A location-based social network.
+  description: A social network that lets users post in their location and see other users' posts near them.
+  version: 0.0.1
+  license:
+    name: GNU Affero General Public License v3.0 or later
+    identifier: AGPL-3.0-or-later
+servers:
+  - url: https://development.eventhorizon.social/v0
+    description: Development server
+  - url: https://api.eventhorizon.social/v0
+    description: Production server
+tags:
+  - name: user
+    description: Operators on user auth data
+  - name: profile
+    description: Access to user profile
+  - name: post
+    description: Access to posts
+  - name: comment
+    description: Access to comments
+  - name: channel
+    description: Access to direct messaging channels
+  - name: message
+    description: Access to messages
+paths:
+  /profile/{user_id}:
+    get:
+      tags:
+        - profile
+      summary: Get the profile of a user
+      operationId: getProfile
+      responses:
+        "200":
+          description: User profile retrieved.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "404":
+          description: No such user found.
+    put:
+      tags:
+        - profile
+      summary: Update the profile of a user
+      operationId: setProfile
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Profile"
+      responses:
+        "200":
+          description: User profile updated
+          content:
+            "application/json": {}
+        "403":
+          description: Not authorized to update user
+    parameters:
+      - name: user_id
+        in: path
+        description: User id of profile to get
+        required: true
+        schema:
+          type: string
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+    UserId:
+      type: string
+      format: uuid
+    PostId:
+      type: string
+      format: uuid
+    ChannelId:
+      type: string
+      format: uuid
+    Profile:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/UserId"
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        bio:
+          type: string
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          $ref: "#/components/schemas/UserId"
+        text:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        latitude:
+          type: number
+        longitude:
+          type: number
+        upvotes:
+          type: integer
+        downvotes:
+          type: integer
+        score:
+          type: integer
+    Comment:
+      type: object
+      properties:
+        comment_id:
+          type: string
+          format: uuid
+        post_id:
+          $ref: "#/components/schemas/PostId"
+        user_id:
+          $ref: "#/components/schemas/UserId"
+        text:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    Channel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+    Message:
+      type: object
+      properties:
+        channel_id:
+          $ref: "#/components/schemas/ChannelId"
+        message_id:
+          type: integer
+        user_id:
+          $ref: "#/components/schemas/UserId"
+        createdAt:
+          type: string
+          format: date-time
+        text:
+          type: string
