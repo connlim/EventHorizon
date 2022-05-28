@@ -11,15 +11,15 @@ jobs:
   redoc-export:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          fetch-depth: 0
+          node-version: 16
+          cache: npm
+          cache-dependency-path: "**/.github/workflows/*.yml"
 
       - name: Build the HTML file
-        uses: seeebiii/redoc-cli-github-action@v10
-        with:
-          args: "build designs/openapi.yaml -o designs/export/api.html"
+        run: "npx redoc-cli build designs/openapi.yaml -o designs/export/api.html"
 
       - name: Commit changed files
         uses: stefanzweifel/git-auto-commit-action@v4
