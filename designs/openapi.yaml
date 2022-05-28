@@ -59,26 +59,122 @@ paths:
             "application/json": {}
         "403":
           description: Not authorized to update user
+      security:
+        - eventhorizon_auth: []
     parameters:
       - name: user_id
         in: path
         description: User id of profile to get
         required: true
         schema:
-          type: string
-
+          $ref: "#/components/schemas/UserId"
+  /post/{post_id}:
+    get:
+      tags:
+        - post
+      summary: Get a post by id
+      operationId: getPostById
+      responses:
+        "200":
+          description: Post retrieved.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Post"
+        "404":
+          description: No such user found.
+    parameters:
+      - name: post_id
+        in: path
+        description: Post id of post to get
+        required: true
+        schema:
+          $ref: "#/components/schemas/PostId"
+  /post/{post_id}/comments:
+    get:
+      tags:
+        - post
+        - comment
+      summary: Get all comments for a post
+      operationId: getCommentsByPost
+      responses:
+        "200":
+          description: Comments retrieved.
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Comment"
+        "404":
+          description: No such post found.
+    post:
+      tags:
+        - post
+        - comment
+      summary: Create a new comment on a post
+      operationId: createCommentForPost
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Comment"
+      responses:
+        "200":
+          description: New comment successfully created
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  comment:
+                    $ref: "#/components/schemas/Comment"
+        "403":
+          description: User is not authorized to make a new comment.
+      security:
+        - eventhorizon_auth: []
+    parameters:
+      - name: post_id
+        in: path
+        description: Post id of the post
+        required: true
+        schema:
+          $ref: "#/components/schemas/PostId"
+  /post/new:
+    post:
+      tags:
+        - post
+      summary: Create a new post
+      operationId: createPost
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Post"
+      responses:
+        "200":
+          description: New post successfully created
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  postId:
+                    $ref: "#/components/schemas/PostId"
+        "403":
+          description: User is not authorized to make a new post.
+      security:
+        - eventhorizon_auth: []
 components:
+  securitySchemes:
+    eventhorizon_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
-    ApiResponse:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        type:
-          type: string
-        message:
-          type: string
     UserId:
       type: string
       format: uuid
