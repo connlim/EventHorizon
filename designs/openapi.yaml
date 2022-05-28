@@ -1,0 +1,258 @@
+---
+openapi: 3.1.0
+info:
+  title: Event Horizon
+  summary: A location-based social network.
+  description: A social network that lets users post in their location and see other users' posts near them.
+  version: 0.0.1
+  license:
+    name: GNU Affero General Public License v3.0 or later
+    identifier: AGPL-3.0-or-later
+servers:
+  - url: https://development.eventhorizon.social/v0
+    description: Development server
+  - url: https://api.eventhorizon.social/v0
+    description: Production server
+tags:
+  - name: user
+    description: Operators on user auth data
+  - name: profile
+    description: Access to user profile
+  - name: post
+    description: Access to posts
+  - name: comment
+    description: Access to comments
+  - name: channel
+    description: Access to direct messaging channels
+  - name: message
+    description: Access to messages
+paths:
+  /profile/{user_id}:
+    get:
+      tags:
+        - profile
+      summary: Get the profile of a user
+      operationId: getProfile
+      responses:
+        "200":
+          description: User profile retrieved.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "404":
+          description: No such user found.
+    put:
+      tags:
+        - profile
+      summary: Update the profile of a user
+      operationId: setProfile
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Profile"
+      responses:
+        "200":
+          description: User profile updated
+          content:
+            "application/json": {}
+        "403":
+          description: Not authorized to update user
+      security:
+        - eventhorizon_auth: []
+    parameters:
+      - name: user_id
+        in: path
+        description: User id of profile to get
+        required: true
+        schema:
+          $ref: "#/components/schemas/UserId"
+  /post/{post_id}:
+    get:
+      tags:
+        - post
+      summary: Get a post by id
+      operationId: getPostById
+      responses:
+        "200":
+          description: Post retrieved.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Post"
+        "404":
+          description: No such user found.
+    parameters:
+      - name: post_id
+        in: path
+        description: Post id of post to get
+        required: true
+        schema:
+          $ref: "#/components/schemas/PostId"
+  /post/{post_id}/comments:
+    get:
+      tags:
+        - post
+        - comment
+      summary: Get all comments for a post
+      operationId: getCommentsByPost
+      responses:
+        "200":
+          description: Comments retrieved.
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Comment"
+        "404":
+          description: No such post found.
+    post:
+      tags:
+        - post
+        - comment
+      summary: Create a new comment on a post
+      operationId: createCommentForPost
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Comment"
+      responses:
+        "200":
+          description: New comment successfully created
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  comment:
+                    $ref: "#/components/schemas/Comment"
+        "403":
+          description: User is not authorized to make a new comment.
+      security:
+        - eventhorizon_auth: []
+    parameters:
+      - name: post_id
+        in: path
+        description: Post id of the post
+        required: true
+        schema:
+          $ref: "#/components/schemas/PostId"
+  /post/new:
+    post:
+      tags:
+        - post
+      summary: Create a new post
+      operationId: createPost
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Post"
+      responses:
+        "200":
+          description: New post successfully created
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  postId:
+                    $ref: "#/components/schemas/PostId"
+        "403":
+          description: User is not authorized to make a new post.
+      security:
+        - eventhorizon_auth: []
+components:
+  securitySchemes:
+    eventhorizon_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserId:
+      type: string
+      format: uuid
+    PostId:
+      type: string
+      format: uuid
+    ChannelId:
+      type: string
+      format: uuid
+    Profile:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/UserId"
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        bio:
+          type: string
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          $ref: "#/components/schemas/UserId"
+        text:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        latitude:
+          type: number
+        longitude:
+          type: number
+        upvotes:
+          type: integer
+        downvotes:
+          type: integer
+        score:
+          type: integer
+    Comment:
+      type: object
+      properties:
+        comment_id:
+          type: string
+          format: uuid
+        post_id:
+          $ref: "#/components/schemas/PostId"
+        user_id:
+          $ref: "#/components/schemas/UserId"
+        text:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    Channel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+    Message:
+      type: object
+      properties:
+        channel_id:
+          $ref: "#/components/schemas/ChannelId"
+        message_id:
+          type: integer
+        user_id:
+          $ref: "#/components/schemas/UserId"
+        createdAt:
+          type: string
+          format: date-time
+        text:
+          type: string
