@@ -91,19 +91,21 @@ export default function Account({ session }) {
                 <div>
                     <label htmlFor="username">Name</label>
                     <input
-                    id="username"
-                    type="text"
-                    value={username || ''}
-                    onChange={(e) => setUsername(e.target.value)}
+                        id="username"
+                        type="text"
+                        value={username || ''}
+                        onChange={(e) => setUsername(e.target.value)}
                     />
                 </div>
                 <div>
                     <label htmlFor="bio">Bio</label>
-                    <input
-                    id="bio"
-                    type="bio"
-                    value={bio || ''}
-                    onChange={(e) => setBio(e.target.value)}
+                    <textarea
+                        id="bio"
+                        type="bio"
+                        value={bio || ''}
+                        onChange={(e) => setBio(e.target.value)}
+                        style={{marginBottom: '1%', backgroundColor: 'black', 
+                                width: '100%', height: '5rem'}}
                     />
                 </div>
 
