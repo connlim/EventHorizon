@@ -28,8 +28,8 @@ export default function Auth() {
       const { error } = await supabase.auth.signUp({ email, password })
       if (error) throw error
       // alert('Check your email for the login link!')
-      alert("Sign up successful!")
-      router.push('/main-page')
+      alert("Sign up successful! Please Set up your account")
+      router.push('/settings')
     } catch (error) {
       alert(error.error_description || error.message)
     } finally {
@@ -40,8 +40,8 @@ export default function Auth() {
   return (
     <div className="row flex flex-center">
       <div className="col-6 form-widget">
-        <h1 className="header">Supabase + Next.js</h1>
-        <p className="description">Sign in via magic link with your email below</p>
+        <h1 className="header">Event Horizon</h1>
+        <p className="description">Sign in or Sign up with your email below</p>
         <div>
           <input
             className="inputField"
@@ -56,6 +56,7 @@ export default function Auth() {
             placeholder="Your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            style={{marginTop: '3%'}}
           />
         </div>
         <div>
@@ -64,8 +65,9 @@ export default function Auth() {
               e.preventDefault()
               handleLogin(email, password)
             }}
-            className="Sign In block"
+            className="button primary"
             disabled={loading}
+            style={{width: '45%', marginRight:'5%', marginTop: '3%'}}
           >
             <span>{loading ? 'Loading' : 'Sign In'}</span>
           </button>
@@ -74,8 +76,9 @@ export default function Auth() {
               e.preventDefault()
               handleSignUp(email, password)
             }}
-            className="Sign Up block"
+            className="button primary"
             disabled={loading}
+            style={{width: '45%', marginLeft:'5%'}}
           >
             <span>{loading ? 'Loading' : 'Sign Up'}</span>
           </button>

@@ -39,7 +39,6 @@ export default function MainPage() {
       //   setAvatarUrl(data.avatar_url)
       // }
 
-
     } catch (error) {
       alert(error.message)
     } finally {
@@ -50,9 +49,6 @@ export default function MainPage() {
 
   return (
     <div className="container" id="root" style={{ padding: '50px 0 100px 0' }}>
-        <div style={{ position: 'absolute', top: '-7px', right: '10px' }}>
-          <p>Signed in: {userEmail}</p>
-        </div>
         <div style={{ position: 'static', top: '10px', border: '1px solid white', 
                       width: '1200px', height: '600px', textAlign: 'center'}}>
           <p style={{ position: 'relative', top: '50%', transform: 'translate(0, -50%)', fontSize: 'x-large'}}>First post goes here.</p>

@@ -24,6 +24,11 @@ function CreatePost() {
       .select(`username`)
       .single()
 
+    if(!userInfo) {
+      alert("Please set up your account first!")
+      router.push("/settings")
+      return;
+    }
     username = userInfo.username
 
     const { data, error, status } = await supabase

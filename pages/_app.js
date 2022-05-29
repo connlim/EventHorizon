@@ -26,6 +26,8 @@ function MyApp({ Component, pageProps }) {
   async function checkUser() {
     const user = supabase.auth.user()
     setUser(user)
+    if(user) alert("Welcome!")
+    else alert("Signed out")
   }
 
   function logout() {
