@@ -23,6 +23,9 @@ export default function Profile() {
                         width: '1200px', height: '600px', textAlign: 'center'}}>
             <p style={{ position: 'relative', top: '50%', transform: 'translate(0, -50%)', fontSize: 'x-large'}}>User's next post goes here.</p>
           </div>
+          <button>
+            Get Post
+          </button>
       </div>
     )
 }
