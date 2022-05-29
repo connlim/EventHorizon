@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabaseClient'
 import Avatar from '../components/avatar'
+import UserProvider from '../context/user'
 
 export default function Account({ session }) {
     const [loading, setLoading] = useState(true)
@@ -109,19 +110,14 @@ export default function Account({ session }) {
 
                 <div>
                     <button
-                    className="button block primary"
-                    onClick={() => updateProfile({ username, website, avatar_url })}
-                    disabled={loading}
+                        className="button block primary"
+                        onClick={() => updateProfile({ username, website, avatar_url })}
+                        disabled={loading}
                     >
                     {loading ? 'Loading ...' : 'Update'}
                     </button>
                 </div>
 
-                <div>
-                    <button className="button block" onClick={() => supabase.auth.signOut()}>
-                    Sign Out
-                    </button>
-                </div>
             </div>
         </div>
         

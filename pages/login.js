@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabaseClient'
-import MainPage from './main-page'
-// import Auth from '../components/auth'
-// import Account from '../components/account'
+import Auth from '../components/auth'
 
-export default function Home() {
+export default function Login() {
     const [session, setSession] = useState(null)
 
     useEffect(() => {
@@ -16,10 +14,9 @@ export default function Home() {
     }, [])
 
     return (
+        
       <div className="container" style={{ padding: '50px 0 100px 0' }}>
-        <MainPage />
-        {/* {!session ? <Auth /> : <Account key={session.user.id} session={session} />} */}
-        {/* {!session ? <Auth /> : <UserHome key={session.user.id} session={session} />} */}
+          <Auth />
       </div>
     )
 }

@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { supabase } from '../utils/supabaseClient'
+import { useRouter } from 'next/router'
 
 export default function Auth() {
 
-  
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -13,6 +14,7 @@ export default function Auth() {
       setLoading(true)
       const { error } = await supabase.auth.signIn({ email, password })
       if (error) throw error
+      router.push('/main-page')
     } catch (error) {
       alert(error.error_description || error.message)
     } finally {
@@ -25,7 +27,9 @@ export default function Auth() {
       setLoading(true)
       const { error } = await supabase.auth.signUp({ email, password })
       if (error) throw error
-      alert('Check your email for the login link!')
+      // alert('Check your email for the login link!')
+      alert("Sign up successful!")
+      router.push('/main-page')
     } catch (error) {
       alert(error.error_description || error.message)
     } finally {

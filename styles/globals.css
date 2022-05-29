@@ -431,3 +431,11 @@ button.primary,
   text-decoration: none;
 }
 
+.photo {
+  position: absolute;
+  right: 50%;
+  margin: 5%;
+  border: #fff;
+  border-width: 1px;
+}
+
