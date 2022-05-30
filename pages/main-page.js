@@ -24,9 +24,22 @@ export default function MainPage() {
       const user = supabase.auth.user()
       if(user!=null) setEmail(user.email)
 
+      const maxDist = 2 //km
+      const earthRadius = 40075.04 
+      const myLat = 0
+      const myLon = 0
+      const degToRad = x => x / 180 * Math.PI
+      const maxDiffLat = 360 * maxDist / earthRadius //deg
+      const maxDiffLon = 360 * maxDist / (earthRadius * Math.cos(degToRad(myLat)))
+
+
       let { data, error, status } = await supabase
         .from('posts')
         .select(`*`)
+        .lte('latitude', myLat + maxDiffLat)
+        .gte('latitude', myLat - maxDiffLat)
+        .lte('longitude', myLon + maxDiffLon)
+        .gte('longitude', myLon - maxDiffLon)
 
       setPosts(data)
       // if (error && status !== 406) {

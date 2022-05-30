@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../utils/supabaseClient'
 
-const initialState = { username: '', content: '', lat: 0.000000, lon: 0.000000 }
+const initialState = { username: '', content: '', lat: '0.000000', lon: '0.000000' }
 
 function CreatePost() {
   const [post, setPost] = useState(initialState)
@@ -11,7 +11,7 @@ function CreatePost() {
   const router = useRouter()
 
   function onChange(e) {
-    setPost(() => ({ ...post, [e.target.name]: e.target.value, lat: 1.000000, lon: 2.000000 }))
+    setPost(() => ({ ...post, [e.target.name]: e.target.value,}))
   }
   
   async function createNewPost() {
@@ -31,14 +31,17 @@ function CreatePost() {
     }
     username = userInfo.username
 
+    var latFloat = parseFloat(lat)
+    var lonFloat = parseFloat(lon)
+
     const { data, error, status } = await supabase
         .from('posts')
         .insert([
             { text: content, 
               username: username,
               user_id: user.id,
-              latitude: lat,
-              longitude: lon
+              latitude: latFloat,
+              longitude: lonFloat
             }
         ])
         .single()
@@ -61,6 +64,21 @@ function CreatePost() {
             value={post.content}
             className="border-b pb-2 text-lg my-4 focus:outline-none w-full font-light text-gray-500 placeholder-gray-500 y-2"
         /> 
+        <input
+            onChange={onChange}
+            name="lat"
+            placeholder="Your latitude"
+            value={post.lat}
+            className="border-b pb-2 text-lg my-4 focus:outline-none w-full font-light text-gray-500 placeholder-gray-500 y-2"
+        /> 
+        <input
+            onChange={onChange}
+            name="lon"
+            placeholder="Your longitude"
+            value={post.lon}
+            className="border-b pb-2 text-lg my-4 focus:outline-none w-full font-light text-gray-500 placeholder-gray-500 y-2"
+        /> 
+
         <button
             type="button"
             className="mb-4 bg-green-600 text-white font-semibold px-8 py-2 rounded-lg"
