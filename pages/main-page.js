@@ -40,11 +40,14 @@ export default function MainPage() {
         .gte('latitude', myLat - maxDiffLat)
         .lte('longitude', myLon + maxDiffLon)
         .gte('longitude', myLon - maxDiffLon)
+        .order('createdAt', { ascending: false })
+
+      if (error && status !== 406) {
+        throw error
+      }
 
       setPosts(data)
-      // if (error && status !== 406) {
-      //   throw error
-      // }
+
 
       // if (data) {
       //   setUsername(data.username)

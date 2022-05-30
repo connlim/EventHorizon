@@ -45,28 +45,30 @@ export default function Account({ session }) {
 
     async function updateProfile({ username, bio, avatar_url }) {
         try {
-        setLoading(true)
-        const user = supabase.auth.user()
+            setLoading(true)
+            const user = supabase.auth.user()
 
-        const updates = {
-            id: user.id,
-            username,
-            bio,
-            avatar_url,
-            updated_at: new Date(),
-        }
+            const updates = {
+                id: user.id,
+                username,
+                bio,
+                avatar_url,
+                updated_at: new Date(),
+            }
 
-        let { error } = await supabase.from('profiles').upsert(updates, {
-            returning: 'minimal', // Don't return the value after inserting
-        })
+            let { error } = await supabase.from('profiles').upsert(updates, {
+                returning: 'minimal', // Don't return the value after inserting
+            })
 
-        if (error) {
-            throw error
-        }
+            if (error) {
+                throw error
+            } else {
+                alert("Updated successful!")
+            }
         } catch (error) {
-        alert(error.message)
+            alert(error.message)
         } finally {
-        setLoading(false)
+            setLoading(false)
         }
     }
 
