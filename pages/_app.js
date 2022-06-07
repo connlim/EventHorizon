@@ -11,31 +11,13 @@ function MyApp({ Component, pageProps }) {
   const router = useRouter()
   const [user, setUser] = useState(null);
 
-  const initialPos = {lat: '0.000000', lon: '0.000000' }
-  const [currPos, setCurrPos] = useState(initialPos) 
-
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async () => {
         checkUser()
       }
     )
-
     checkUser()
-
-    if(!navigator.geolocation) {
-      alert("Your browser does not support geolocation, which is an essential feature of Event Horizon. To continue, \
-        please use a different browser!")
-      return (<div>
-        <p>Error!</p>
-      </div>)
-    }
-
-    const watchID = navigator.geolocation.watchPosition((position) => {
-      setCurrPos({ ...currPos, lat:position.coords.latitude, lon:position.coords.longitude, });
-      console.log(position)
-    })
-  
     return () => {
       authListener?.unsubscribe()
     };
@@ -44,8 +26,6 @@ function MyApp({ Component, pageProps }) {
   async function checkUser() {
     const user = supabase.auth.user()
     setUser(user)
-    if(user) alert("Welcome!")
-    else alert("Signed out")
   }
 
   function logout() {
@@ -92,9 +72,18 @@ function MyApp({ Component, pageProps }) {
               ) 
             }
           </span>
-          <span style={{display: "inline-block"}}>
-              Lat:{currPos.lat} Lon:{currPos.lon}
-          </span>
+          <button
+            type="button"
+            className="mb-4 bg-green-600 text-white font-semibold px-8 py-2 rounded-lg"
+            onClick={() => {
+              if(!navigator) { alert("No navigator service available") }
+              else {
+                navigator.geolocation.getCurrentPosition((loc) => {
+                  alert("Latitude: " + loc.coords.latitude + ", Longitude: " + loc.coords.longitude)
+                })
+              }
+            }}
+          >Show My Position</button>
         </nav>
         <div className="py-8 px-16">
           <Component {...pageProps} />

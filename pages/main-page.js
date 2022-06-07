@@ -18,6 +18,10 @@ export default function MainPage() {
     getAllPost()
   }, []);
 
+  function getLongAndLat() {
+    
+  }
+
   async function getAllPost() {
     try {
       setLoading(true)
@@ -26,8 +30,11 @@ export default function MainPage() {
 
       const maxDist = 2 //km
       const earthRadius = 40075.04 
-      const myLat = 0
-      const myLon = 0
+      let position = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject))
+      let { coords } = position
+      const myLat = coords.latitude
+      const myLon = coords.longitude
+
       const degToRad = x => x / 180 * Math.PI
       const maxDiffLat = 360 * maxDist / earthRadius //deg
       const maxDiffLon = 360 * maxDist / (earthRadius * Math.cos(degToRad(myLat)))

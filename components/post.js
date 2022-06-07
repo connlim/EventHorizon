@@ -1,21 +1,27 @@
-import Profile from "../pages/profile";
-import { supabase } from "../utils/supabaseClient";
+import styles from "../styles/Post.module.css"
 
 export default function Post({ idx, data }) {
-
+    const timestampDate = new Date(data.createdAt)
+    const date = timestampDate.toDateString()
+    const time = timestampDate.toLocaleTimeString()
     return (
-        <div key={idx} style={{ position: 'relative', marginTop: '10px', border: '1px solid white', 
-                        width: '1200px', height: '600px', textAlign: 'center'}}>
-            <p style={{ position: 'relative', top: '50%', transform: 'translate(0, -50%)', fontSize: 'x-large'}}>
-                Post Number: {idx} <br/>
-                OP: {data.username} <br/>
-                Content: {data.text} <br/>
-                Latitude: {data.latitude} <br/>
-                Longitude: {data.longitude} <br/>
-                Upvotes: {data.upvotes} <br/>
-                Downvotes: {data.downvotes} <br/>
-                Score: {data.score}
-            </p>
+        <div key={idx} className={styles.container}>
+            <div className={styles.media}>
+                <p>Insert Photo Here!</p>
+            </div>
+            <div className={styles.postDetails}>
+                <header className={styles.header}>
+                    <div className={styles.userName}>{data.username}</div>
+                    <div className={styles.stamp}>{data.latitude}, {data.longitude}</div>
+                    <div className={styles.stamp}>{date} {time}</div>
+                </header>
+                    {data.text}
+                <div className={styles.footer}>
+                    <button className={styles.vote} style={{border: "1px solid orange"}}>-{data.downvotes}</button>
+                    <p className={styles.score}>Score: {data.score}</p>
+                    <button className={styles.vote} style={{border: "1px solid green"}}>+{data.upvotes}</button>
+                </div>
+            </div>
         </div>
 
     )
