@@ -1,6 +1,14 @@
 import styles from "../styles/Post.module.css"
+import { supabase } from '../utils/supabaseClient'
+import { useState, useEffect } from "react"
 
 export default function Post({ idx, data }) {
+
+    const [mediaUrl, setMediaUrl] = useState(null)
+
+    useEffect(() => {
+        if (data.media) downloadImage(data.media)
+      }, [])
     
     // Convert timestamp to human readable time
     const timestampDate = new Date(data.createdAt)
@@ -14,11 +22,28 @@ export default function Post({ idx, data }) {
         ? truncatedContent.substring(0, MAX_CONTENT_LENGTH) + "..."
         : truncatedContent
 
+    async function downloadImage(path) {
+        try {
+            const { data, error } = await supabase.storage.from('media').download(path)
+            if (error) {
+            throw error
+            }
+            console.log(data)
+            const url = URL.createObjectURL(data)
+            setMediaUrl(url)
+            console.log(mediaUrl)
+        } catch (error) {
+            console.log('Error downloading image: ', error.message)
+        }
+    }
+
     return (
         <div key={idx} className={styles.container}>
-            <div className={styles.media}>
-                <p>Insert Photo Here!</p>
-            </div>
+            {data.media ? (<img
+                src={mediaUrl}
+                alt="Media"
+                className={styles.media}
+            />) : <div className={styles.media}>Insert media here!</div>}
             <div className={styles.postDetails}>
                 <header className={styles.header}>
                     <div className={styles.userName}>{data.username}</div>
