@@ -74,6 +74,7 @@ export default function Profile() {
 
   return (
     <div className="container" id="root" style={{ padding: '50px 0 100px 0' }}>
+        {loading && <p style={{textAlign: "center", fontSize: "x-large"}}>Loading</p>}
         <div>
           <p> User: {username}</p>
           <p> Email: {userEmail}</p>

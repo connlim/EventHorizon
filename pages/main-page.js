@@ -34,16 +34,6 @@ export default function MainPage() {
       const myLat = coords.latitude
       const myLon = coords.longitude
 
-
-      // let { data, error, status } = await supabase
-      //   .from('posts')
-      //   .select(`*`)
-      //   .lte('latitude', myLat + maxDiffLat)
-      //   .gte('latitude', myLat - maxDiffLat)
-      //   .lte('longitude', myLon + maxDiffLon)
-      //   .gte('longitude', myLon - maxDiffLon)
-      //   .order('createdAt', { ascending: false })
-
       let { data, error, status } = await supabase
         .rpc("get_position_within_radius_query", {myLat:myLat, myLon:myLon, r:maxRadius})
 
@@ -70,6 +60,7 @@ export default function MainPage() {
 
   return (
     <div className="container" id="root" style={{ padding: '50px 0 100px 0' }}>
+        {loading && <p style={{textAlign: "center", fontSize: "x-large"}}>Loading</p>}
         {posts?.map((entry,idx) => (<Post data={entry} idx={idx}/>))}
     </div>
   )
