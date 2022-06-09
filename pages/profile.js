@@ -80,7 +80,7 @@ export default function Profile() {
           <p> Email: {userEmail}</p>
           <p> Bio: {bio}</p> 
         </div>
-        {posts?.map((entry,idx) => (<Post data={entry} idx={idx}/>))}
+        {posts?.map((entry,idx) => (<Post data={entry} idx={idx} key={idx}/>))}
     </div>
   )
 }

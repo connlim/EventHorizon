@@ -60,8 +60,8 @@ export default function MainPage() {
 
   return (
     <div className="container" id="root" style={{ padding: '50px 0 100px 0' }}>
-        {loading && <p style={{textAlign: "center", fontSize: "x-large"}}>Loading</p>}
-        {posts?.map((entry,idx) => (<Post data={entry} idx={idx}/>))}
+        {loading && <p style={{textAlign: "center", fontSize: "x-large"}}>Loading...</p>}
+        {posts?.map((entry,idx) => (<Post data={entry} idx={idx} key={idx}/>))}
     </div>
   )
 }
