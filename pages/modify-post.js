@@ -1,23 +1,51 @@
-// pages/create-post.js
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../utils/supabaseClient'
 import Media from '../components/media'
 
-const initialState = { username: '', content: '', lat: 0.000000, lon: 0.000000, media: null }
 
-function CreatePost() {
 
+function ModifyPost() {
+
+  const { query } = useRouter()
+  let initialState = { id: null, username: '', content: '', media: null } 
   const router = useRouter()
   const [post, setPost] = useState(initialState)
   const [media_url, setMediaUrl] = useState(null)
-  let { username, content, lat, lon, media } = post
+  const [loading, setLoading] = useState(false)
+  let { id, username, content, media } = post
 
+  useEffect(() => {
+    if(query.postID) getPost(query.postID)
+  }, [])
+
+  async function getPost(postID) {
+      try {
+        setLoading(true)
+
+        let { data, error, status } = await supabase
+            .from('posts')
+            .select(`username, text, media`)
+            .eq('id', postID)
+            .single()
+
+        if (error && status !== 406) {
+            throw error
+        }
+
+        if (data) {
+          setPost(() => ({  id: postID, username: data.username, content: data.text, media: data.media }))
+        }
+      } catch (error) {
+        alert(error.message)
+      } finally {
+        setLoading(false)
+      }
+  }
 
   function onChange(e) {
     setPost(() => ({ ...post, [e.target.name]: e.target.value,}))
   }
-
   
   async function createNewPost() {
     if (!content) {
@@ -44,20 +72,36 @@ function CreatePost() {
       return
     } else {
       navigator.geolocation.getCurrentPosition(async (position) => {
-        const { data, error, status } = await supabase
-        .from('posts')
-        .insert([
-            { text: content, 
-              username: username,
-              user_id: user.id,
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-              media: media_url
-            }
-        ])
-        .single()
+        
+        const { data, error, status } = id 
+          ? await supabase
+            .from('posts')
+            .upsert([
+                {
+                  id: id,
+                  text: content, 
+                  username: username,
+                  user_id: user.id,
+                  latitude: position.coords.latitude,
+                  longitude: position.coords.longitude,
+                  media: media_url
+                }
+            ])
+            .single()
+          : await supabase
+            .from('posts')
+            .insert([
+                {
+                  text: content, 
+                  username: username,
+                  user_id: user.id,
+                  latitude: position.coords.latitude,
+                  longitude: position.coords.longitude,
+                  media: media_url
+                }
+            ])
+          .single()
 
-        console.log(post)
         if(status == 201 && !error) {
           alert("Posted successfully!")
           router.push("/main-page")
@@ -123,4 +167,4 @@ function CreatePost() {
   )
 }
 
-export default CreatePost
+export default ModifyPost

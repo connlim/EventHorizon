@@ -27,8 +27,9 @@
 
 .header {
     display: flex;
-    margin-bottom: 1rem;
     flex-direction: column;
+    margin-left: 34.5%;
+    margin-right: auto;
 }
 
 .userName {
@@ -66,3 +67,24 @@
   align-self: center;
 }
 
+.popupMenuButton {
+    border: none;
+    float: right;
+    height: 4rem;
+    width: 10%;
+}
+
+.popupMenu{
+    width: min-content;
+    height: min-content;
+}
+
+.popupMenuItem{
+    border: 1px solid white;
+    border-bottom: none;
+    background-color: rgb(52, 52, 52);
+    width: 8rem;
+    height: 2rem;
+    text-align: center;
+    display: block;
+}

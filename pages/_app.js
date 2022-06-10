@@ -44,7 +44,7 @@ function MyApp({ Component, pageProps }) {
             {
               user && (
                 <span>
-                  <Link href="/create-post">
+                  <Link href="/modify-post" as="posts/create">
                     <span className="button">Create Post</span>
                   </Link>
                   <Link href="/profile">
