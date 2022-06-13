@@ -70,7 +70,6 @@ export default function Auth() {
               e.preventDefault();
               handleLogin(email, password);
             }}
-            className="button primary"
             disabled={loading}
           >
             <span>{loading ? "Loading" : "Sign In"}</span>
@@ -80,7 +79,6 @@ export default function Auth() {
               e.preventDefault();
               handleSignUp(email, password);
             }}
-            className="button primary"
             disabled={loading}
           >
             <span>{loading ? "Loading" : "Sign Up"}</span>
