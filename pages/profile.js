@@ -73,12 +73,13 @@ export default function Profile() {
   return (
     <Container id="root" className="mt-3">
       <div>
+        {loading && <p style={{textAlign: "center", fontSize: "x-large"}}>Loading</p>}
         <p> User: {username}</p>
         <p> Email: {userEmail}</p>
         <p> Bio: {bio}</p>
       </div>
       {posts?.map((entry, idx) => (
-        <Post data={entry} idx={idx} />
+        <Post data={entry} idx={idx} key={idx}/>
       ))}
     </Container>
   );
