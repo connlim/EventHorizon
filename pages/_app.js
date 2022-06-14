@@ -5,8 +5,7 @@ import { supabase } from "../utils/supabaseClient";
 import UserProvider from "../context/user";
 import CustomNavbar from "../components/navbar";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/globals.css";
+import "../styles/main.scss";
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
