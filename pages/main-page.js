@@ -26,8 +26,7 @@ export default function MainPage() {
       const user = supabase.auth.user();
       if (user != null) setEmail(user.email);
 
-      const maxDist = 2; //km
-      const earthRadius = 40075.04;
+      const maxRadius = 0.1; //meters
       let position = await new Promise((resolve, reject) =>
         navigator.geolocation.getCurrentPosition(resolve, reject)
       );
@@ -35,19 +34,10 @@ export default function MainPage() {
       const myLat = coords.latitude;
       const myLon = coords.longitude;
 
-      const degToRad = (x) => (x / 180) * Math.PI;
-      const maxDiffLat = (360 * maxDist) / earthRadius; //deg
-      const maxDiffLon =
-        (360 * maxDist) / (earthRadius * Math.cos(degToRad(myLat)));
-
-      let { data, error, status } = await supabase
-        .from("posts")
-        .select(`*`)
-        .lte("latitude", myLat + maxDiffLat)
-        .gte("latitude", myLat - maxDiffLat)
-        .lte("longitude", myLon + maxDiffLon)
-        .gte("longitude", myLon - maxDiffLon)
-        .order("createdAt", { ascending: false });
+      let { data, error, status } = await supabase.rpc(
+        "get_position_within_radius_query",
+        { myLat: myLat, myLon: myLon, r: maxRadius }
+      );
 
       if (error && status !== 406) {
         throw error;
@@ -69,11 +59,15 @@ export default function MainPage() {
 
   return (
     <Container id="root" className="mt-3">
-      <Stack gap={3} className="align-content-center">
-        {posts?.map((entry, idx) => (
-          <Post data={entry} idx={idx} />
-        ))}
-      </Stack>
+      {loading ? (
+        <p style={{ textAlign: "center", fontSize: "x-large" }}>Loading...</p>
+      ) : (
+        <Stack gap={3} className="align-items-center">
+          {posts?.map((entry, idx) => (
+            <Post data={entry} idx={idx} />
+          ))}
+        </Stack>
+      )}
     </Container>
   );
 }
