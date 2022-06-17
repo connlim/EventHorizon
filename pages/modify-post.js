@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../utils/supabaseClient'
 import Media from '../components/media'
-
-
+import { Button, Container, Form, Stack } from "react-bootstrap";
 
 function ModifyPost() {
 
@@ -114,8 +113,10 @@ function ModifyPost() {
   }
 
   return (
-    <div>
-        <div style={{display: 'flex', marginTop: '2rem'}}>
+    <Container className="mt-3">
+      <Stack gap={3}>
+        <h1 className="mb-3">Edit your post</h1>
+        {/* <div style={{display: 'flex', marginTop: '2rem'}}>
           <div 
             style={{
               display:'flex',
@@ -125,45 +126,58 @@ function ModifyPost() {
             <Media
               url={media_url}
               size={640}
+              border={"1px solid black"}
               onUpload={(url) => {
                   setMediaUrl(url)
                   setPost(() => ({ ...post, media: url,}))
               }}
             /> 
           </div>
-
-          <textarea
-              onChange={onChange}
-              name="content"
-              placeholder="Your content"
-              value={post.content}
-              style={{
-                border: '1px solid white',
-                display: 'block',
-                marginLeft: '12px',
-                marginRight: 'auto',
-                backgroundColor: 'black',
-                height: '688px',
-                width: '640px'
-              }}
-          /> 
-        </div>
-        
-        <button
+        </div> */}
+        <Form.Control
+        as="textarea"
+        onChange={onChange}
+        name="content"
+        placeholder="Your post"
+        value={post.content}
+        />        
+        <Stack direction="horizontal" gap={3}>
+          <Button type="button" onClick={createNewPost}>
+            Save Post
+          </Button>
+          <Button
             type="button"
-            className="mb-4 bg-green-600 text-white font-semibold px-8 py-2 rounded-lg"
-            onClick={createNewPost}
-            style={{
-              border: '1px solid green',
-              display: 'block',
-              margin: '2rem auto 2rem auto',
-              backgroundColor: 'green',
-              width: '1292px',
-              fontWeight: 'bold',
-              fontSize: 'large'
+            variant="outline-secondary"
+            onClick={() => {
+              navigator.permissions
+                .query({ name: "geolocation" })
+                .then((result) => {
+                  if (result.state == "granted") {
+                    navigator.geolocation.getCurrentPosition(
+                      (position) => {
+                        setPost(() => ({
+                          ...post,
+                          lat: position.coords.latitude,
+                          lon: position.coords.longitude,
+                        }));
+                        console.log(post.lat + ", " + post.lon);
+                      },
+                      (error) => console.log("Error due to " + error)
+                    );
+                  } else {
+                    console.log(
+                      "Browser location services disabled",
+                      navigator
+                    );
+                  }
+                });
             }}
-        >Post it!</button>
-    </div>
+          >
+            Test Location
+          </Button>
+        </Stack>
+      </Stack>
+    </Container>
   )
 }
 
