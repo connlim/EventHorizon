@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Col, Container, Row } from "react-bootstrap";
+import { Container, Stack } from "react-bootstrap";
 
 import { supabase } from "../utils/supabaseClient";
 import { useUser } from "../context/user";
@@ -68,11 +68,12 @@ export default function MainPage() {
   }
 
   return (
-    <Container id="root" className="d-flex justify-content-center">
-      {posts?.map((entry, idx) => (
-            <Post data={entry} idx={idx} />
-      ))}
+    <Container id="root" className="mt-3">
+      <Stack gap={3} className="align-content-center">
+        {posts?.map((entry, idx) => (
+          <Post data={entry} idx={idx} />
+        ))}
+      </Stack>
     </Container>
   );
 }
-
