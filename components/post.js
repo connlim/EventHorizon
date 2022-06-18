@@ -21,6 +21,9 @@ export default function Post({ idx, data }) {
   const timestampDate = new Date(data.createdAt);
   const date = timestampDate.toDateString();
   const time = timestampDate.toLocaleTimeString();
+  const [upvotes, setUpvotes] = useState(data.upvotes)
+  const [downvotes, setDownvotes] = useState(data.downvotes)
+  const [score, setScore] = useState(data.score)
 
   const user = useUser().user.id;
   const [mediaUrl, setMediaUrl] = useState(null);
@@ -88,6 +91,27 @@ export default function Post({ idx, data }) {
     }
   }
 
+  async function vote(postID, type) {
+    try {
+      let { data, error} = await supabase
+        .rpc('increment', { col: type, post_id: postID });
+
+      if (error) {
+        throw error;
+      }
+      if (type == "upvotes") {
+        setScore(score + 1)
+        setUpvotes(upvotes + 1)
+      } else {
+        setScore(score - 1)
+        setDownvotes(downvotes + 1)
+      }
+    } catch (error) {
+      console.log(error.message)
+      alert(error.message);
+    }
+  }
+
   return (
     <Card key={idx} className="w-lg-75">
       <Card.Img variant="top" src={mediaUrl} />
@@ -111,12 +135,14 @@ export default function Post({ idx, data }) {
             <Col>
               <Stack>
                 <Stack className="ms-auto" direction="horizontal" gap={3}>
-                  <ToggleButton variant="outline-danger" size="sm">
-                    -{data.downvotes}
+                  <ToggleButton variant="outline-danger" size="sm"
+                    onClick={() => vote(data.id, "downvotes")}>
+                    -{downvotes}
                   </ToggleButton>
-                  <div>{data.score}</div>
-                  <ToggleButton variant="outline-success" size="sm">
-                    +{data.upvotes}
+                  <div>{score}</div>
+                  <ToggleButton variant="outline-success" size="sm"
+                    onClick={() => vote(data.id, "upvotes")}>
+                    +{upvotes}
                   </ToggleButton>
                 </Stack>
                 <div className="ms-auto mt-2">
