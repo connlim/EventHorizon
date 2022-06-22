@@ -16,6 +16,8 @@ import Link from "next/link";
 import Router from "next/router";
 import { useUser } from "../context/user";
 
+import Avatar from "./avatar";
+
 export default function Post({ idx, data }) {
   // Convert timestamp to human readable time
   const timestampDate = new Date(data.createdAt);
@@ -123,7 +125,10 @@ export default function Post({ idx, data }) {
           <Row className="align-items-center">
             <Col className="me-auto">
               <Stack>
-                <div>{data.username}</div>
+                <Stack direction="horizontal" gap={2} className="align-items-center my-2">
+                  <Avatar url={data.avatar_url} size={24} circle />
+                  <div>{data.username}</div>
+                </Stack>
                 <div className="text-muted">
                   {date} {time}
                 </div>

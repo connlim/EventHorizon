@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button, Container, Form } from "react-bootstrap";
 
 import { supabase } from "../utils/supabaseClient";
-import Avatar from "./avatar";
+import AvatarUpload from "./avatarUpload";
 
 export default function Account({ session }) {
   const [loading, setLoading] = useState(true);
@@ -77,7 +77,7 @@ export default function Account({ session }) {
   return (
     <Container className="mt-3">
       <Form>
-        <Avatar
+        <AvatarUpload
           url={avatar_url}
           size={150}
           onUpload={(url) => {
