@@ -26,7 +26,7 @@ export default function MainPage() {
       const user = supabase.auth.user();
       if (user != null) setEmail(user.email);
 
-      const maxRadius = 0.1; //meters
+      const maxRadius = 1000; //meters
       let position = await new Promise((resolve, reject) =>
         navigator.geolocation.getCurrentPosition(resolve, reject)
       );

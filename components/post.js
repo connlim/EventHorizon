@@ -23,17 +23,20 @@ export default function Post({ idx, data }) {
   const timestampDate = new Date(data.createdAt);
   const date = timestampDate.toDateString();
   const time = timestampDate.toLocaleTimeString();
-  const [upvotes, setUpvotes] = useState(data.upvotes)
-  const [downvotes, setDownvotes] = useState(data.downvotes)
-  const [score, setScore] = useState(data.score)
-
 
   const user = useUser().user?.id;
   const [mediaUrl, setMediaUrl] = useState(null);
   const [modalShow, setModalShow] = useState(false);
 
+  const [upvotes, setUpvotes] = useState(data.upvotes)
+  const [downvotes, setDownvotes] = useState(data.downvotes)
+  const [score, setScore] = useState(data.score)
+  const [upvoted, setUpvoted] = useState(false);
+  const [downvoted, setDownvoted] = useState(false);
+
   useEffect(() => {
     if (data.media) downloadImage(data.media);
+    checkVote();
   }, []);
 
   // Truncate content to MAX_CONTENT_LENGTH
@@ -80,7 +83,6 @@ export default function Post({ idx, data }) {
         let { error, status } = await supabase.storage
           .from("media")
           .remove([`folder/${deletedMedia}`]);
-        console.log(status);
         if (error) {
           throw error;
         }
@@ -99,31 +101,80 @@ export default function Post({ idx, data }) {
       alert("You need to be a logged in user to vote on a post!");
       return;
     }
-    try { 
-      let { data, error, status } = await supabase
-        .from("votes")
-        .insert({post_id: postID, user_id: user, vote_type: type})
-        .single()
+    try {
 
-      if (status == 409) {
-        alert("You can't upvote/downvot the same post twice!");
-        return;
-      }
-
-      if (error) {
-        throw error;
+      let delVote = false
+      if (type == 'upvotes') {
+        if(upvoted) {
+          setUpvoted(false);
+          delVote = true
+        } else {
+          setDownvoted(false)
+          setUpvoted(true)
+        }
       } else {
-        console.log(data);
+        if(downvoted) {
+          setDownvoted(false);
+          delVote = true
+        } else {
+          setDownvoted(true)
+          setUpvoted(false)
+        }
       }
 
-      if (type == "upvotes") {
-        setScore(score + 1)
-        setUpvotes(upvotes + 1)
+      if (!delVote) {
+        let { data, error, status } = await supabase
+          .from("votes")
+          .insert({post_id: postID, user_id: user, vote_type: type})
+          .single()
+        if (error) throw error;
       } else {
-        setScore(score - 1)
-        setDownvotes(downvotes + 1)
+        let { data, error } = await supabase
+          .from("votes")
+          .delete()
+          .match({post_id: postID, user_id: user})
+          if (error) throw error;
       }
+
+      updateScore(postID)
+
     } catch (error) {
+      console.log(error.message)
+      alert(error.message);
+    }
+  }
+
+  async function checkVote() {
+    try{    
+      let { data, error } = await supabase
+        .from("votes")
+        .select("vote_type", "user_id")
+        .eq('user_id', user);
+      if (error) throw error;
+      if (data[0]) {data[0].vote_type == "upvotes" ? setUpvoted(true) : setDownvoted(true);}
+      else {
+        setUpvoted(false);
+        setDownvoted(false);
+      }
+    } catch(error) {
+      console.log(error.message)
+      alert(error.message);
+    }
+  }
+  
+  async function updateScore(postID) {
+    try{  
+      console.log("checking")  
+      let { data, error } = await supabase
+        .from("posts")
+        .select("upvotes, score, downvotes")
+        .eq('id', postID)
+        .single();
+      if (error) throw error;
+      setDownvotes(data.downvotes)
+      setScore(data.score)
+      setUpvotes(data.upvotes)
+    } catch(error) {
       console.log(error.message)
       alert(error.message);
     }
@@ -156,11 +207,15 @@ export default function Post({ idx, data }) {
               <Stack>
                 <Stack className="ms-auto" direction="horizontal" gap={3}>
                   <ToggleButton variant="outline-danger" size="sm"
+                    type="radio"
+                    checked={downvoted}
                     onClick={() => vote(data.id, "downvotes")}>
                     -{downvotes}
                   </ToggleButton>
                   <div>{score}</div>
                   <ToggleButton variant="outline-success" size="sm"
+                    type="radio"
+                    checked={upvoted}
                     onClick={() => vote(data.id, "upvotes")}>
                     +{upvotes}
                   </ToggleButton>
