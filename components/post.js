@@ -27,7 +27,8 @@ export default function Post({ idx, data }) {
   const [downvotes, setDownvotes] = useState(data.downvotes)
   const [score, setScore] = useState(data.score)
 
-  const user = useUser().user.id;
+
+  const user = useUser().user?.id;
   const [mediaUrl, setMediaUrl] = useState(null);
   const [modalShow, setModalShow] = useState(false);
 
@@ -94,13 +95,27 @@ export default function Post({ idx, data }) {
   }
 
   async function vote(postID, type) {
-    try {
-      let { data, error} = await supabase
-        .rpc('increment', { col: type, post_id: postID });
+    if(!user) {
+      alert("You need to be a logged in user to vote on a post!");
+      return;
+    }
+    try { 
+      let { data, error, status } = await supabase
+        .from("votes")
+        .insert({post_id: postID, user_id: user, vote_type: type})
+        .single()
+
+      if (status == 409) {
+        alert("You can't upvote/downvot the same post twice!");
+        return;
+      }
 
       if (error) {
         throw error;
+      } else {
+        console.log(data);
       }
+
       if (type == "upvotes") {
         setScore(score + 1)
         setUpvotes(upvotes + 1)
