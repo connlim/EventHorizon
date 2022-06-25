@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Stack } from "react-bootstrap";
+import { Container, Stack, Spinner } from "react-bootstrap";
 
 import { supabase } from "../utils/supabaseClient";
 import { useUser } from "../context/user";
@@ -18,15 +18,15 @@ export default function MainPage() {
     getAllPost();
   }, []);
 
-  function getLongAndLat() {}
-
   async function getAllPost() {
     try {
       setLoading(true);
       const user = supabase.auth.user();
       if (user != null) setEmail(user.email);
 
-      const maxRadius = 1000; //meters
+      let maxRadius = parseFloat(localStorage.getItem("maxRadius")) ; //meters
+      maxRadius = maxRadius == NaN ? 500 : maxRadius;
+      console.log("Current max radius: " + maxRadius)
       let position = await new Promise((resolve, reject) =>
         navigator.geolocation.getCurrentPosition(resolve, reject)
       );
@@ -45,11 +45,6 @@ export default function MainPage() {
 
       setPosts(data);
 
-      // if (data) {
-      //   setUsername(data.username)
-      //   setWebsite(data.website)
-      //   setAvatarUrl(data.avatar_url)
-      // }
     } catch (error) {
       alert(error.message);
     } finally {
@@ -60,11 +55,16 @@ export default function MainPage() {
   return (
     <Container id="root" className="mt-3">
       {loading ? (
-        <p style={{ textAlign: "center", fontSize: "x-large" }}>Loading...</p>
+        <Container style={{ textAlign: "center", fontSize: "x-large", justifyContent: "space-evenly" }}>
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+          <p style={{marginTop: "1rem"}}>Loading...</p>
+        </Container>
       ) : (
         <Stack gap={3} className="align-items-center">
           {posts?.map((entry, idx) => (
-            <Post data={entry} idx={idx} />
+            <Post data={entry} idx={idx} key={idx}/>
           ))}
         </Stack>
       )}

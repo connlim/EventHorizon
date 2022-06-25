@@ -28,7 +28,8 @@ function MyApp({ Component, pageProps }) {
 
   function logout() {
     supabase.auth.signOut();
-    router.push("/main-page");
+    setUser(null);
+    window.location.reload(false);
   }
 
   return (

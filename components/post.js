@@ -8,6 +8,8 @@ import {
   Modal,
   ToggleButton,
   ButtonGroup,
+  OverlayTrigger,
+  Tooltip,
 } from "react-bootstrap";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { supabase } from "../utils/supabaseClient";
@@ -36,7 +38,7 @@ export default function Post({ idx, data }) {
 
   useEffect(() => {
     if (data.media) downloadImage(data.media);
-    checkVote();
+    if(user) checkVote(data.id);
   }, []);
 
   // Truncate content to MAX_CONTENT_LENGTH
@@ -144,12 +146,12 @@ export default function Post({ idx, data }) {
     }
   }
 
-  async function checkVote() {
+  async function checkVote(postID) {
     try{    
       let { data, error } = await supabase
         .from("votes")
         .select("vote_type", "user_id")
-        .eq('user_id', user);
+        .match({post_id: postID, user_id: user});
       if (error) throw error;
       if (data[0]) {data[0].vote_type == "upvotes" ? setUpvoted(true) : setDownvoted(true);}
       else {
@@ -171,6 +173,7 @@ export default function Post({ idx, data }) {
         .eq('id', postID)
         .single();
       if (error) throw error;
+      console.log(data)
       setDownvotes(data.downvotes)
       setScore(data.score)
       setUpvotes(data.upvotes)
@@ -179,6 +182,12 @@ export default function Post({ idx, data }) {
       alert(error.message);
     }
   }
+
+  const ConditionalWrapper = ({
+    condition,
+    wrapper,
+    children,
+  }) => (condition ? wrapper(children) : children);
 
   return (
     <Card key={idx} className="w-lg-75">
@@ -205,21 +214,36 @@ export default function Post({ idx, data }) {
             </Col>
             <Col>
               <Stack>
-                <Stack className="ms-auto" direction="horizontal" gap={3}>
-                  <ToggleButton variant="outline-danger" size="sm"
-                    type="radio"
-                    checked={downvoted}
-                    onClick={() => vote(data.id, "downvotes")}>
-                    -{downvotes}
-                  </ToggleButton>
-                  <div>{score}</div>
-                  <ToggleButton variant="outline-success" size="sm"
-                    type="radio"
-                    checked={upvoted}
-                    onClick={() => vote(data.id, "upvotes")}>
-                    +{upvotes}
-                  </ToggleButton>
-                </Stack>
+                <ConditionalWrapper
+                  condition={!user}
+                  wrapper={children => (
+                    <OverlayTrigger
+                        overlay={<Tooltip>Sign In to Vote!</Tooltip>}
+                        placement='top'
+                    >
+                        {children}
+                    </OverlayTrigger>
+                    )}
+                >
+                  <Stack className="ms-auto" direction="horizontal" gap={3}>
+                    <ToggleButton variant="outline-danger" size="sm"
+                      type="radio"
+                      checked={downvoted}
+                      onClick={() => vote(data.id, "downvotes")}
+                      disabled={user == null}>
+                      -{downvotes}
+                    </ToggleButton>
+                    <div>{score}</div>
+                    <ToggleButton variant="outline-success" size="sm"
+                      type="radio"
+                      checked={upvoted}
+                      onClick={() => vote(data.id, "upvotes")}
+                      disabled={user == null}>
+                      +{upvotes}
+                    </ToggleButton>
+                  </Stack>
+                </ConditionalWrapper>
+                
                 <div className="ms-auto mt-2">
                   <FiMoreHorizontal onClick={() => setModalShow(true)} />
                   <Modal
@@ -227,7 +251,6 @@ export default function Post({ idx, data }) {
                     show={modalShow}
                     onHide={() => setModalShow(false)}
                     centered={true}
-                    bac
                   >
                     {user == data.user_id ? (
                       <ButtonGroup vertical={true}>

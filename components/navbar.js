@@ -1,9 +1,35 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Button, Container, Nav, Navbar } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { Button, Card, Container, Col, Form, 
+  Modal, Nav, Navbar, InputGroup, Row } from "react-bootstrap";
+
 
 export default function CustomNavbar(props) {
   const router = useRouter();
+  const [modalShow, setModalShow] = useState(false);
+  const [currLatLon, setCurrLatLon] = useState([0,0]);
+  const [validated, setValidated] = useState(false);
+  const [maxRadius, setMaxRadius] = useState(NaN);
+
+  useEffect(() => {
+    setMaxRadius(localStorage.getItem('maxRadius'));
+  }, [maxRadius]);
+
+  const handleSave = (event) => {
+    const form = event.currentTarget;
+    let newMaxRadius = 500;
+    if (form.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+      setValidated(false);
+    } else {
+      newMaxRadius = parseFloat(document.getElementById("maxRadiusInput").value);
+    }
+    localStorage.setItem("maxRadius", newMaxRadius);
+    setMaxRadius(newMaxRadius)
+    setValidated(true);
+  };
   return (
     <Navbar fixed="sticky" bg="light" expand="lg">
       <Container>
@@ -41,18 +67,61 @@ export default function CustomNavbar(props) {
                 alert("No navigator service available");
               } else {
                 navigator.geolocation.getCurrentPosition((loc) => {
-                  alert(
-                    "Latitude: " +
-                      loc.coords.latitude +
-                      ", Longitude: " +
-                      loc.coords.longitude
-                  );
+                  setCurrLatLon([loc.coords.latitude, loc.coords.longitude])
                 });
               }
+              setModalShow(true);
             }}
           >
-            Show My Position
+            Current Radius: { maxRadius }
           </Button>
+          <Modal
+              className="modal fade"
+              size="lg"
+              show={modalShow}
+              onHide={() => setModalShow(false)}
+              centered={true}
+            >
+            <Modal.Header>Here are you position details!</Modal.Header>
+            {
+              <Container>
+                <Form noValidate validated={validated} onSubmit={handleSave}>
+                  <Form.Group as={Row}className="mb-3" controlId="maxRadiusInput">
+                      <Form.Label column sm="5">Current Position: </Form.Label>
+                      <Col sm="7">
+                        Latitude: {currLatLon[0]}, 
+                        <br />
+                        Longitude: {currLatLon[1]}
+                      </Col>
+                    </Form.Group>
+                    <Form.Group as={Row}className="mb-3" controlId="maxRadiusInput">
+                      <Form.Label column sm="5">Set search radius: </Form.Label>
+                      <Col sm="6">
+                        <InputGroup className="mb-3">
+                          <Form.Control 
+                            required 
+                            column size="sm" 
+                            type="number" 
+                            defaultValue="500"/>
+                          <InputGroup.Text bg="white" size="sm">m</InputGroup.Text>
+                          <Button variant="outline-primary" id="button-addon2" 
+                            onClick={(e) => handleSave(e)}>Save
+                          </Button>
+                          <Button onClick={() => window.location.reload(false)}
+                            variant="outline-secondary"
+                            witdh="1%">
+                            Refresh
+                          </Button>
+                        </InputGroup>
+                      </Col>
+                      <Form.Control.Feedback type="invalid">
+                            Please enter the radius in metres!.
+                      </Form.Control.Feedback>
+                  </Form.Group>
+                </Form>
+              </Container>
+            }
+          </Modal>
         </Navbar.Collapse>
       </Container>
     </Navbar>
