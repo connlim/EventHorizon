@@ -1,0 +1,28 @@
+name: Keep redoc OpenAPI export synchronized
+on:
+  push:
+    paths:
+      - "designs/openapi.yaml"
+      - .github/workflows/redoc-export.yml
+concurrency:
+  group: redoc-export-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  redoc-export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+          cache-dependency-path: "**/.github/workflows/*.yml"
+
+      - name: Build the HTML file
+        run: "npx redoc-cli build designs/openapi.yaml -o designs/export/api.html"
+
+      - name: Commit changed files
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "docs: sync api export html"
+          file_pattern: designs/export/api.html

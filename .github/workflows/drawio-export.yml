@@ -1,0 +1,30 @@
+name: Keep draw.io export synchronized
+on:
+  push:
+    paths:
+      - "designs/**.drawio"
+      - .github/workflows/drawio-export.yml
+concurrency:
+  group: drawio-export-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  drawio-export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Export drawio files to pngs
+        uses: rlespinasse/drawio-export-action@v2
+        with:
+          path: designs
+          format: png
+          transparent: false
+
+      - name: Commit changed files
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "docs: sync draw.io exported files"
+          file_pattern: designs/export/*.png
