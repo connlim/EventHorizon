@@ -28,17 +28,19 @@ export default function Post({ idx, data }) {
 
   const user = useUser().user?.id;
   const [mediaUrl, setMediaUrl] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
   const [modalShow, setModalShow] = useState(false);
 
-  const [upvotes, setUpvotes] = useState(data.upvotes)
-  const [downvotes, setDownvotes] = useState(data.downvotes)
-  const [score, setScore] = useState(data.score)
+  const [upvotes, setUpvotes] = useState(data.upvotes);
+  const [downvotes, setDownvotes] = useState(data.downvotes);
+  const [score, setScore] = useState(data.score);
   const [upvoted, setUpvoted] = useState(false);
   const [downvoted, setDownvoted] = useState(false);
 
   useEffect(() => {
     if (data.media) downloadImage(data.media);
-    if(user) checkVote(data.id);
+    if (user) checkVote(data.id);
+    if (data.user_id) downloadAvatar(data.user_id);
   }, []);
 
   // Truncate content to MAX_CONTENT_LENGTH
@@ -48,6 +50,16 @@ export default function Post({ idx, data }) {
     truncatedContent.length > MAX_CONTENT_LENGTH
       ? truncatedContent.substring(0, MAX_CONTENT_LENGTH) + "..."
       : truncatedContent;
+
+  async function downloadAvatar(userId) {
+    const { data, error } = await supabase.rpc("get_avatar_url_by_user_id", {
+      user_id: userId,
+    });
+    if (error) {
+      throw error;
+    }
+    if (data) setAvatarUrl(data);
+  }
 
   async function downloadImage(path) {
     try {
@@ -99,95 +111,91 @@ export default function Post({ idx, data }) {
   }
 
   async function vote(postID, type) {
-    if(!user) {
+    if (!user) {
       alert("You need to be a logged in user to vote on a post!");
       return;
     }
     try {
-
-      let delVote = false
-      if (type == 'upvotes') {
-        if(upvoted) {
+      let delVote = false;
+      if (type == "upvotes") {
+        if (upvoted) {
           setUpvoted(false);
-          delVote = true
+          delVote = true;
         } else {
-          setDownvoted(false)
-          setUpvoted(true)
+          setDownvoted(false);
+          setUpvoted(true);
         }
       } else {
-        if(downvoted) {
+        if (downvoted) {
           setDownvoted(false);
-          delVote = true
+          delVote = true;
         } else {
-          setDownvoted(true)
-          setUpvoted(false)
+          setDownvoted(true);
+          setUpvoted(false);
         }
       }
 
       if (!delVote) {
         let { data, error, status } = await supabase
           .from("votes")
-          .insert({post_id: postID, user_id: user, vote_type: type})
-          .single()
+          .insert({ post_id: postID, user_id: user, vote_type: type })
+          .single();
         if (error) throw error;
       } else {
         let { data, error } = await supabase
           .from("votes")
           .delete()
-          .match({post_id: postID, user_id: user})
-          if (error) throw error;
+          .match({ post_id: postID, user_id: user });
+        if (error) throw error;
       }
 
-      updateScore(postID)
-
+      updateScore(postID);
     } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
       alert(error.message);
     }
   }
 
   async function checkVote(postID) {
-    try{    
+    try {
       let { data, error } = await supabase
         .from("votes")
         .select("vote_type", "user_id")
-        .match({post_id: postID, user_id: user});
+        .match({ post_id: postID, user_id: user });
       if (error) throw error;
-      if (data[0]) {data[0].vote_type == "upvotes" ? setUpvoted(true) : setDownvoted(true);}
-      else {
+      if (data[0]) {
+        data[0].vote_type == "upvotes" ? setUpvoted(true) : setDownvoted(true);
+      } else {
         setUpvoted(false);
         setDownvoted(false);
       }
-    } catch(error) {
-      console.log(error.message)
-      alert(error.message);
-    }
-  }
-  
-  async function updateScore(postID) {
-    try{  
-      console.log("checking")  
-      let { data, error } = await supabase
-        .from("posts")
-        .select("upvotes, score, downvotes")
-        .eq('id', postID)
-        .single();
-      if (error) throw error;
-      console.log(data)
-      setDownvotes(data.downvotes)
-      setScore(data.score)
-      setUpvotes(data.upvotes)
-    } catch(error) {
-      console.log(error.message)
+    } catch (error) {
+      console.log(error.message);
       alert(error.message);
     }
   }
 
-  const ConditionalWrapper = ({
-    condition,
-    wrapper,
-    children,
-  }) => (condition ? wrapper(children) : children);
+  async function updateScore(postID) {
+    try {
+      console.log("checking");
+      let { data, error } = await supabase
+        .from("posts")
+        .select("upvotes, score, downvotes")
+        .eq("id", postID)
+        .single();
+      if (error) throw error;
+      console.log(data);
+      setDownvotes(data.downvotes);
+      setScore(data.score);
+      setUpvotes(data.upvotes);
+    } catch (error) {
+      console.log(error.message);
+      alert(error.message);
+    }
+  }
+
+  const ConditionalWrapper = ({ condition, wrapper, children }) =>
+    condition ? wrapper(children) : children;
 
   return (
     <Card key={idx} className="w-lg-75">
@@ -200,8 +208,12 @@ export default function Post({ idx, data }) {
           <Row className="align-items-center">
             <Col className="me-auto">
               <Stack>
-                <Stack direction="horizontal" gap={2} className="align-items-center my-2">
-                  <Avatar url={data.avatar_url} size={24} circle />
+                <Stack
+                  direction="horizontal"
+                  gap={2}
+                  className="align-items-center my-2"
+                >
+                  <Avatar url={avatarUrl} size={24} circle />
                   <div>{data.username}</div>
                 </Stack>
                 <div className="text-muted">
@@ -216,34 +228,40 @@ export default function Post({ idx, data }) {
               <Stack>
                 <ConditionalWrapper
                   condition={!user}
-                  wrapper={children => (
+                  wrapper={(children) => (
                     <OverlayTrigger
-                        overlay={<Tooltip>Sign In to Vote!</Tooltip>}
-                        placement='top'
+                      overlay={<Tooltip>Sign In to Vote!</Tooltip>}
+                      placement="top"
                     >
-                        {children}
+                      {children}
                     </OverlayTrigger>
-                    )}
+                  )}
                 >
                   <Stack className="ms-auto" direction="horizontal" gap={3}>
-                    <ToggleButton variant="outline-danger" size="sm"
+                    <ToggleButton
+                      variant="outline-danger"
+                      size="sm"
                       type="radio"
                       checked={downvoted}
                       onClick={() => vote(data.id, "downvotes")}
-                      disabled={user == null}>
+                      disabled={user == null}
+                    >
                       -{downvotes}
                     </ToggleButton>
                     <div>{score}</div>
-                    <ToggleButton variant="outline-success" size="sm"
+                    <ToggleButton
+                      variant="outline-success"
+                      size="sm"
                       type="radio"
                       checked={upvoted}
                       onClick={() => vote(data.id, "upvotes")}
-                      disabled={user == null}>
+                      disabled={user == null}
+                    >
                       +{upvotes}
                     </ToggleButton>
                   </Stack>
                 </ConditionalWrapper>
-                
+
                 <div className="ms-auto mt-2">
                   <FiMoreHorizontal onClick={() => setModalShow(true)} />
                   <Modal
