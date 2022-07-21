@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Button, Card, Container, Col, Form, 
-  Modal, Nav, Navbar, InputGroup, Row } from "react-bootstrap";
+  Modal, Nav, Navbar, InputGroup, Row, NavDropdown } from "react-bootstrap";
 
 
 export default function CustomNavbar(props) {
@@ -11,9 +11,15 @@ export default function CustomNavbar(props) {
   const [currLatLon, setCurrLatLon] = useState([0,0]);
   const [validated, setValidated] = useState(false);
   const [maxRadius, setMaxRadius] = useState(NaN);
+  const [orderType, setOrderType] = useState('createdAt');
+  const [asc, setAscending] = useState(false);
 
   useEffect(() => {
     setMaxRadius(localStorage.getItem('maxRadius'));
+    let orderBy = localStorage.getItem("orderType"); 
+    let order = localStorage.getItem("order") === 'true'; 
+    setOrderType(orderBy);
+    setAscending(order);
   }, [maxRadius]);
 
   const handleSave = (event) => {
@@ -30,6 +36,14 @@ export default function CustomNavbar(props) {
     setMaxRadius(newMaxRadius)
     setValidated(true);
   };
+
+  function updateOrder(param, value) {
+    localStorage.setItem(param, value);
+    if (param == "orderType") setOrderType(value);
+    if (param == "order") setAscending(value);
+    window.dispatchEvent(new Event("setOrderingEvent"))
+  }
+
   return (
     <Navbar fixed="sticky" bg="light" expand="lg">
       <Container>
@@ -122,6 +136,16 @@ export default function CustomNavbar(props) {
               </Container>
             }
           </Modal>
+          <NavDropdown
+              id="nav-dropdown"
+              title={"Sort By: " + (orderType == "createdAt" ? "Date" : "Score") + (asc ? " ↑" : " ↓")}
+            >
+              <NavDropdown.Item onClick={() => updateOrder("orderType", 'createdAt')}>Date</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => updateOrder("orderType", 'score')}> Score</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item onClick={() => updateOrder("order", true)}>Ascending ↑</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => updateOrder("order", false)}>Descending ↓</NavDropdown.Item>
+            </NavDropdown>
         </Navbar.Collapse>
       </Container>
     </Navbar>

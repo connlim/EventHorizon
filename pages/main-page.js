@@ -16,6 +16,11 @@ export default function MainPage() {
     if (user != null) setEmail(user.email);
     else setEmail("null");
     getAllPost();
+    window.addEventListener(
+      "setOrderingEvent",
+      getAllPost,
+      false
+    );
   }, []);
 
   async function getAllPost() {
@@ -25,7 +30,11 @@ export default function MainPage() {
       if (user != null) setEmail(user.email);
 
       let maxRadius = parseFloat(localStorage.getItem("maxRadius")) ; //meters
+      let orderType = localStorage.getItem("orderType"); 
+      let order = localStorage.getItem("order") === 'true'; 
       maxRadius = maxRadius == NaN ? 500 : maxRadius;
+      console.log(orderType);
+      console.log(order);
       console.log("Current max radius: " + maxRadius)
       let position = await new Promise((resolve, reject) =>
         navigator.geolocation.getCurrentPosition(resolve, reject)
@@ -37,7 +46,7 @@ export default function MainPage() {
       let { data, error, status } = await supabase.rpc(
         "get_position_within_radius_query",
         { myLat: myLat, myLon: myLon, r: maxRadius }
-      );
+      ).order(orderType, {ascending: order});
 
       if (error && status !== 406) {
         throw error;
@@ -66,6 +75,18 @@ export default function MainPage() {
           {posts?.map((entry, idx) => (
             <Post data={entry} idx={idx} key={idx}/>
           ))}
+          {
+            (posts == null || posts.length == 0) && (
+              <Stack gap={3} className="align-items-center">
+                <p style={{marginTop: "1rem",  fontSize: "x-large", fontWeight: "bold"}}>
+                  No posts in this region!
+                </p>
+                <p style={{fontSize: "large"}}>
+                  Consider using a bigger filtering radius.
+                </p>
+              </Stack>
+            )
+          }
         </Stack>
       )}
     </Container>
