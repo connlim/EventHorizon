@@ -10,8 +10,12 @@ import {
   ButtonGroup,
   OverlayTrigger,
   Tooltip,
+  InputGroup,
+  Form,
+  Spinner
 } from "react-bootstrap";
 import { FiMoreHorizontal } from "react-icons/fi";
+import { BiCommentDetail } from "react-icons/bi";
 import { supabase } from "../utils/supabaseClient";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -19,6 +23,7 @@ import Router from "next/router";
 import { useUser } from "../context/user";
 
 import Avatar from "./avatar";
+import Comment from "../components/comment";
 
 export default function Post({ idx, data }) {
   // Convert timestamp to human readable time
@@ -30,6 +35,7 @@ export default function Post({ idx, data }) {
   const [mediaUrl, setMediaUrl] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [modalShow, setModalShow] = useState(false);
+  const [commentModalShow, setCommentModalShow] = useState(false);
 
   const [upvotes, setUpvotes] = useState(data.upvotes);
   const [downvotes, setDownvotes] = useState(data.downvotes);
@@ -37,10 +43,20 @@ export default function Post({ idx, data }) {
   const [upvoted, setUpvoted] = useState(false);
   const [downvoted, setDownvoted] = useState(false);
 
+  const [newComment, setNewComment] = useState("");
+  const [comments, setComments] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const postID = data.id
+
   useEffect(() => {
     if (data.media) downloadImage(data.media);
     if (user) checkVote(data.id);
     if (data.user_id) downloadAvatar(data.user_id);
+    window.addEventListener(
+      "deleteCommentEvent",
+      getAllComments,
+      false
+   );
   }, []);
 
   // Truncate content to MAX_CONTENT_LENGTH
@@ -81,7 +97,7 @@ export default function Post({ idx, data }) {
   async function deletePost(postID) {
     alert("Are you sure to delete this post?");
     try {
-      let { data, error, status } = await supabase
+      let { data, error} = await supabase
         .from("posts")
         .delete()
         .match({ id: postID })
@@ -94,7 +110,7 @@ export default function Post({ idx, data }) {
       const deletedMedia = data.media;
 
       if (data.media) {
-        let { error, status } = await supabase.storage
+        let { error } = await supabase.storage
           .from("media")
           .remove([`folder/${deletedMedia}`]);
         if (error) {
@@ -110,6 +126,7 @@ export default function Post({ idx, data }) {
     }
   }
 
+  /* Functions to handle voting and updating the score of a post */
   async function vote(postID, type) {
     if (!user) {
       alert("You need to be a logged in user to vote on a post!");
@@ -177,7 +194,6 @@ export default function Post({ idx, data }) {
 
   async function updateScore(postID) {
     try {
-      console.log("checking");
       let { data, error } = await supabase
         .from("posts")
         .select("upvotes, score, downvotes")
@@ -194,11 +210,78 @@ export default function Post({ idx, data }) {
     }
   }
 
+  /* Functions to handle getting and submitting comments to a post */
+
+  function showComments() {
+    getAllComments()
+    setCommentModalShow(true)
+  }
+
+  async function getAllComments() {
+    try {
+      setLoading(true);
+
+      let { data, error } = await supabase
+        .from('comments')
+        .select()
+        .eq('post_id', postID)
+        .order('createdAt', { ascending: false });
+
+      if (error) {
+        throw error;
+      } else if (data) {
+        setComments(data);
+      }
+
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function onCommentChange(e) {
+    setNewComment(e.target.value);
+  }
+
+  async function submitComment() {
+    if(!newComment) return;
+
+    const { data: userInfo, error: userError} = await supabase
+    .from('profiles')
+    .select(`username`)
+    .single()
+
+    if(userError) {
+      alert("Ohno your user info cannot be found at the moment! Try again later!");
+      return;
+    }
+
+    const { data, error, status } = await supabase
+      .from("comments")
+      .insert(
+        {
+          text: newComment,
+          user_id: user,
+          post_id: postID,
+          username: userInfo.username
+        },
+      )
+      .single();
+
+    if (!error) {
+      setNewComment("");
+      getAllComments();
+    } else {
+      alert(error);
+    }
+  }
+
   const ConditionalWrapper = ({ condition, wrapper, children }) =>
     condition ? wrapper(children) : children;
 
   return (
-    <Card key={idx} className="w-lg-75">
+    <Card key={idx} className="w-lg-75" ref={(element) => { window.postComponent = element; }}>
       <Card.Img variant="top" src={mediaUrl} />
       <Card.Body>
         <Card.Text>{truncatedContent}</Card.Text>
@@ -262,40 +345,121 @@ export default function Post({ idx, data }) {
                   </Stack>
                 </ConditionalWrapper>
 
-                <div className="ms-auto mt-2">
-                  <FiMoreHorizontal onClick={() => setModalShow(true)} />
-                  <Modal
-                    className="modal fade"
-                    show={modalShow}
-                    onHide={() => setModalShow(false)}
-                    centered={true}
-                  >
-                    {user == data.user_id ? (
-                      <ButtonGroup vertical={true}>
-                        <Link
-                          href={{
-                            pathname: `/modify-post`,
-                            query: { postID: data.id },
-                          }}
-                          as={`posts/edit/${data.id}`}
+                <Stack className="ms-auto" direction="horizontal" gap={3} ju>
+                  <div className="ms-auto mt-2" style={{ margin: "0.25rem" }}>
+                    <FiMoreHorizontal onClick={() => setModalShow(true)} />
+                    <Modal
+                      className="modal fade"
+                      show={modalShow}
+                      onHide={() => setModalShow(false)}
+                      centered={true}
+                    >
+                      {user == data.user_id ? (
+                        <ButtonGroup vertical={true}>
+                          <Link
+                            href={{
+                              pathname: `/modify-post`,
+                              query: { postID: data.id },
+                            }}
+                            as={`posts/edit/${data.id}`}
+                          >
+                            <Button variant="outline-primary">Edit</Button>
+                          </Link>
+                          <Button
+                            onClick={() => deletePost(data.id)}
+                            variant="outline-danger"
+                          >
+                            Delete
+                          </Button>
+                        </ButtonGroup>
+                      ) : (
+                        <ButtonGroup vertical={true}>
+                          <Button variant="outline-primary">More</Button>
+                          <Button variant="outline-primary">Save</Button>
+                        </ButtonGroup>
+                      )}
+                    </Modal>
+                  </div>
+
+                  <div className="vr" style={{ margin: "0.25rem" }}/>
+
+                  <div className="ms-auto mt-2" style={{ margin: "0.25rem" }}>
+                    <BiCommentDetail onClick={showComments} />
+                    <Modal
+                      className="modal fade"
+                      show={commentModalShow}
+                      onHide={() => setCommentModalShow(false)}
+                      centered={true}
+                      size="lg"
+                    >
+                      <Modal.Header closeButton>
+                        <Modal.Title id="example-modal-sizes-title-lg">
+                          {data.text}
+                        </Modal.Title>
+                      </Modal.Header>
+                      <Modal.Body style={{ height: "70vh", overflowY: "auto"}}>
+                        <Container id="root" className="mt-3">
+                          {loading ? (
+                            <Container style={{ textAlign: "center", fontSize: "x-large", justifyContent: "space-evenly" }}>
+                              <Spinner animation="border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                              </Spinner>
+                              <p style={{marginTop: "1rem"}}>Loading...</p>
+                            </Container>
+                          ) : (
+                            <Stack gap={3} className="align-items-center">
+                              {comments?.map((entry, idx) => (
+                                <Comment data={entry} idx={idx} key={idx}/>
+                              ))}
+                              {
+                                (comments == null || comments.length == 0) && (
+                                  <p style={{marginTop: "1rem",  fontSize: "x-large", fontWeight: "bold"}}>
+                                    No comments yet!
+                                  </p>
+                                )
+                              }
+                            </Stack>
+                          )}
+                        </Container>
+                      </Modal.Body>
+                      <Modal.Footer style={{ padding: "1%" }}>
+                        <ConditionalWrapper
+                          condition={!user}
+                          wrapper={(children) => (
+                            <OverlayTrigger
+                              overlay={<Tooltip>Sign In to Comment!</Tooltip>}
+                              placement="top"
+                            >
+                              {children}
+                            </OverlayTrigger>
+                          )}
                         >
-                          <Button variant="outline-primary">Edit</Button>
-                        </Link>
-                        <Button
-                          onClick={() => deletePost(data.id)}
-                          variant="outline-danger"
-                        >
-                          Delete
-                        </Button>
-                      </ButtonGroup>
-                    ) : (
-                      <ButtonGroup vertical={true}>
-                        <Button variant="outline-primary">More</Button>
-                        <Button variant="outline-primary">Save</Button>
-                      </ButtonGroup>
-                    )}
-                  </Modal>
-                </div>
+                          <InputGroup>
+                            <Form.Control
+                              placeholder="Make a comment!"
+                              aria-label="Your Comment"
+                              aria-describedby="basic-addon2"
+                              id="form-new-comment"
+                              disabled={!user}
+                              style={{ alignSelf: "center" }}
+                              value={newComment}
+                              onChange={onCommentChange}
+                              autoFocus
+                            />
+                            <Button 
+                              variant="outline-primary" 
+                              id="button-submit-comment"
+                              disabled={!user}
+                              onClick={submitComment}>
+                              Submit
+                            </Button>
+                          </InputGroup>
+                        </ConditionalWrapper>
+                      </Modal.Footer>
+                    </Modal>
+                  </div>
+                </Stack>
+                
               </Stack>
             </Col>
           </Row>
@@ -303,4 +467,8 @@ export default function Post({ idx, data }) {
       </Card.Footer>
     </Card>
   );
+}
+
+export function delCommentFromList() {
+  window.getCommentComponent;
 }
