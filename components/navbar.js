@@ -78,7 +78,7 @@ export default function CustomNavbar(props) {
             variant="outline-primary"
             onClick={() => {
               if (!navigator) {
-                alert("No navigator service available");
+                alert("No navigator service available on your browser! Consider using a different browser.");
               } else {
                 navigator.geolocation.getCurrentPosition((loc) => {
                   setCurrLatLon([loc.coords.latitude, loc.coords.longitude])

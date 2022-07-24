@@ -67,8 +67,8 @@ function ModifyPost() {
     username = userInfo.username
 
     if(!navigator) { 
-      alert("No navigator service available")
-      return
+      alert("No navigator service available on your browser! Consider using a different browser.");
+      return;
     } else {
       navigator.geolocation.getCurrentPosition(async (position) => {
         

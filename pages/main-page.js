@@ -30,12 +30,17 @@ export default function MainPage() {
       if (user != null) setEmail(user.email);
 
       let maxRadius = parseFloat(localStorage.getItem("maxRadius")) ; //meters
+      maxRadius = isNaN(maxRadius) ? 500 : maxRadius; 
       let orderType = localStorage.getItem("orderType"); 
+      orderType = orderType == null ? "createdAt" : orderType;
       let order = localStorage.getItem("order") === 'true'; 
-      maxRadius = maxRadius == NaN ? 500 : maxRadius;
-      console.log(orderType);
-      console.log(order);
-      console.log("Current max radius: " + maxRadius)
+      // console.log("ordertype: " + orderType);
+      // console.log("order " + order);
+      // console.log("Current max radius: " + isNaN(maxRadius))
+      if(!navigator || ! navigator.geolocation) { 
+        alert("No navigator service available on your browser! Consider using a different browser.");
+        return;
+      } 
       let position = await new Promise((resolve, reject) =>
         navigator.geolocation.getCurrentPosition(resolve, reject)
       );

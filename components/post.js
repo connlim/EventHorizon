@@ -85,10 +85,10 @@ export default function Post({ idx, data }) {
       if (error) {
         throw error;
       }
-      console.log(data);
+      // console.log(data);
       const url = URL.createObjectURL(data);
       setMediaUrl(url);
-      console.log(mediaUrl);
+      // console.log(mediaUrl);
     } catch (error) {
       console.log("Error downloading image: ", error.message);
     }
@@ -118,7 +118,7 @@ export default function Post({ idx, data }) {
         }
       }
 
-      console.log(data);
+      // console.log(data);
       alert("Deleted successfully!");
       Router.reload(window.location.pathname);
     } catch (error) {
@@ -200,7 +200,7 @@ export default function Post({ idx, data }) {
         .eq("id", postID)
         .single();
       if (error) throw error;
-      console.log(data);
+      // console.log(data);
       setDownvotes(data.downvotes);
       setScore(data.score);
       setUpvotes(data.upvotes);
