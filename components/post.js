@@ -347,7 +347,7 @@ export default function Post({ idx, data }) {
 
                 <Stack className="ms-auto" direction="horizontal" gap={3} ju>
                   <div className="ms-auto mt-2" style={{ margin: "0.25rem" }}>
-                    <FiMoreHorizontal onClick={() => setModalShow(true)} />
+                    {user == data.user_id && <FiMoreHorizontal onClick={() => setModalShow(true)} />}
                     <Modal
                       className="modal fade"
                       show={modalShow}
@@ -381,7 +381,7 @@ export default function Post({ idx, data }) {
                     </Modal>
                   </div>
 
-                  <div className="vr" style={{ margin: "0.25rem" }}/>
+                  <div className="vr" style={{ margin: "0.25rem", marginTop: "0.5rem"}}/>
 
                   <div className="ms-auto mt-2" style={{ margin: "0.25rem" }}>
                     <BiCommentDetail onClick={showComments} />
