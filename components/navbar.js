@@ -138,13 +138,13 @@ export default function CustomNavbar(props) {
           </Modal>
           <NavDropdown
               id="nav-dropdown"
-              title={"Sort By: " + (orderType == "createdAt" ? "Date" : "Score") + (asc ? " ↑" : " ↓")}
+              title={"Sort By: " + (orderType == "createdAt" ? "Date" : "Popularity") + (asc ? " ↑" : " ↓")}
             >
               <NavDropdown.Item onClick={() => updateOrder("orderType", 'createdAt')}>Date</NavDropdown.Item>
-              <NavDropdown.Item onClick={() => updateOrder("orderType", 'score')}> Score</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => updateOrder("orderType", 'score')}>Popularity</NavDropdown.Item>
               <NavDropdown.Divider />
-              <NavDropdown.Item onClick={() => updateOrder("order", true)}>Ascending ↑</NavDropdown.Item>
-              <NavDropdown.Item onClick={() => updateOrder("order", false)}>Descending ↓</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => updateOrder("order", true)}>{orderType == "createdAt" ? "Oldest" : "Least Popular"} on top ↑</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => updateOrder("order", false)}>{orderType == "createdAt" ? "Newest" : "Most Popular"} on top ↓</NavDropdown.Item>
             </NavDropdown>
         </Navbar.Collapse>
       </Container>
