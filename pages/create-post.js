@@ -80,7 +80,7 @@ function CreatePost() {
           <Button type="button" onClick={createNewPost}>
             Create Post
           </Button>
-          <Button
+          {/* <Button
             type="button"
             variant="outline-secondary"
             onClick={() => {
@@ -109,7 +109,7 @@ function CreatePost() {
             }}
           >
             Test Location
-          </Button>
+          </Button> */}
         </Stack>
       </Stack>
       <ToastContainer className="p-3" position="bottom-end">

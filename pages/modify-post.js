@@ -149,7 +149,7 @@ function ModifyPost() {
           <Button type="button" onClick={createNewPost}>
             Save Post
           </Button>
-          <Button
+          {/* <Button
             type="button"
             variant="outline-secondary"
             onClick={() => {
@@ -178,7 +178,7 @@ function ModifyPost() {
             }}
           >
             Test Location
-          </Button>
+          </Button> */}
         </Stack>
       </Stack>
       <ToastContainer className="p-3" position="bottom-end">
