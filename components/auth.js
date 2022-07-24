@@ -27,10 +27,7 @@ export default function Auth() {
       setLoading(true);
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
-      let confirmed = false;
-      while(!confirmed) {
-        confirmed = confirm("Sign up successful! Please Set up your account");
-      }
+      alert("Sign up successful! Please Set up your account");
       router.push("/settings");
     } catch (error) {
       alert(error.error_description || error.message);

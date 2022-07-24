@@ -29,10 +29,7 @@ function CreatePost() {
       .single();
 
     if (!userInfo) {
-      let confirmed = false;
-      while(!confirmed) {
-        confirmed = confirm("Sign up successful! Please Set up your account");
-      }
+      alert("Sign up successful! Please Set up your account");
       router.push("/settings");
       return;
     }

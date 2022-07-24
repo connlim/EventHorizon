@@ -63,10 +63,7 @@ function ModifyPost() {
       .single()
 
     if(!userInfo) {
-      let confirmed = false;
-      while(!confirmed) {
-        confirmed = confirm("Sign up successful! Please Set up your account first.");
-      }
+      alert("Sign up successful! Please Set up your account first.");
       router.push("/settings")
       return;
     }
