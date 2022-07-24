@@ -43,7 +43,6 @@ export default function Post({ idx, data }) {
   const [upvoted, setUpvoted] = useState(false);
   const [downvoted, setDownvoted] = useState(false);
 
-  const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState(null);
   const [loading, setLoading] = useState(false);
   const postID = data.id
@@ -240,11 +239,9 @@ export default function Post({ idx, data }) {
     }
   }
 
-  function onCommentChange(e) {
-    setNewComment(e.target.value);
-  }
-
   async function submitComment() {
+    let newComment = document.getElementById("form-new-comment").value;
+    console.log(newComment);
     if(!newComment) return;
 
     const { data: userInfo, error: userError} = await supabase
@@ -270,7 +267,6 @@ export default function Post({ idx, data }) {
       .single();
 
     if (!error) {
-      setNewComment("");
       getAllComments();
     } else {
       alert(error);
@@ -442,8 +438,8 @@ export default function Post({ idx, data }) {
                               id="form-new-comment"
                               disabled={!user}
                               style={{ alignSelf: "center" }}
-                              value={newComment}
-                              onChange={onCommentChange}
+                              // value={newComment}
+                              // onChange={onCommentChange}
                               autoFocus
                             />
                             <Button 
