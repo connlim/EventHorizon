@@ -2,20 +2,23 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../utils/supabaseClient'
 import Media from '../components/media'
-import { Button, Container, Form, Stack } from "react-bootstrap";
+import { Button, Container, Form, Stack, Toast, ToastContainer } from "react-bootstrap";
 
 function ModifyPost() {
 
-  const { query } = useRouter()
-  let initialState = { id: null, username: '', content: '', media: null } 
-  const router = useRouter()
-  const [post, setPost] = useState(initialState)
-  const [media_url, setMediaUrl] = useState(null)
-  const [loading, setLoading] = useState(false)
-  let { id, username, content, media } = post
+  const { query } = useRouter();
+  let initialState = { id: null, username: '', content: '', media: null } ;
+  const router = useRouter();
+  const [post, setPost] = useState(initialState);
+  const [media_url, setMediaUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+  let { id, username, content, media } = post;
+
+  const [toastShow, setToastShow] = useState(false);
+  const toastDuration = 1500;
 
   useEffect(() => {
-    if(query.postID) getPost(query.postID)
+    if(query.postID) getPost(query.postID);
   }, [])
 
   async function getPost(postID) {
@@ -60,7 +63,10 @@ function ModifyPost() {
       .single()
 
     if(!userInfo) {
-      alert("Please set up your account first!")
+      let confirmed = false;
+      while(!confirmed) {
+        confirmed = confirm("Sign up successful! Please Set up your account first.");
+      }
       router.push("/settings")
       return;
     }
@@ -102,7 +108,8 @@ function ModifyPost() {
           .single()
 
         if(status == 201 && !error) {
-          alert("Posted successfully!")
+          setToastShow(true)
+          await new Promise(r => setTimeout(r, toastDuration));
           router.push("/main-page")
         } else {
           alert(error)
@@ -177,6 +184,18 @@ function ModifyPost() {
           </Button>
         </Stack>
       </Stack>
+      <ToastContainer className="p-3" position="bottom-end">
+        <Toast 
+            onClose={() => setToastShow(false)} 
+            show={toastShow} 
+            delay={toastDuration} 
+            autohide >
+          <Toast.Header>
+            <strong className="me-auto">SUCCESS</strong>
+          </Toast.Header>
+          <Toast.Body>Post updated successfully! Refreshing Soon ...</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </Container>
   )
 }

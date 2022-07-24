@@ -12,7 +12,9 @@ import {
   Tooltip,
   InputGroup,
   Form,
-  Spinner
+  Spinner,
+  Toast,
+  ToastContainer
 } from "react-bootstrap";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { BiCommentDetail } from "react-icons/bi";
@@ -46,6 +48,9 @@ export default function Post({ idx, data }) {
   const [comments, setComments] = useState(null);
   const [loading, setLoading] = useState(false);
   const postID = data.id
+
+  const [delPostToastShow, setDelPostToastShow] = useState(false);
+  const toastDuration = 2000;
 
   useEffect(() => {
     if (data.media) downloadImage(data.media);
@@ -94,7 +99,7 @@ export default function Post({ idx, data }) {
   }
 
   async function deletePost(postID) {
-    alert("Are you sure to delete this post?");
+    if(!confirm("Are you sure to delete this post?")) return; 
     try {
       let { data, error} = await supabase
         .from("posts")
@@ -118,7 +123,9 @@ export default function Post({ idx, data }) {
       }
 
       // console.log(data);
-      alert("Deleted successfully!");
+      setModalShow(false);
+      setDelPostToastShow(true);
+      await new Promise(r => setTimeout(r, toastDuration));
       Router.reload(window.location.pathname);
     } catch (error) {
       alert(error.message);
@@ -461,6 +468,18 @@ export default function Post({ idx, data }) {
           </Row>
         </Container>
       </Card.Footer>
+      <ToastContainer className="p-3" position="bottom-end">
+        <Toast 
+            onClose={() => setDelPostToastShow(false)} 
+            show={delPostToastShow} 
+            delay={toastDuration} 
+            autohide >
+          <Toast.Header>
+            <strong className="me-auto">SUCCESS</strong>
+          </Toast.Header>
+          <Toast.Body>Post deleted successfully! Refreshing Soon ...</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </Card>
   );
 }

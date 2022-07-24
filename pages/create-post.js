@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../utils/supabaseClient";
-import { Button, Container, Form, Stack } from "react-bootstrap";
+import { Button, Container, Form, Stack, Toast, ToastContainer } from "react-bootstrap";
 
 const initialState = { username: "", content: "", lat: 0.0, lon: 0.0 };
 
@@ -10,6 +10,9 @@ function CreatePost() {
   const [post, setPost] = useState(initialState);
   let { username, content, lat, lon } = post;
   const router = useRouter();
+
+  const [toastShow, setToastShow] = useState(false);
+  const toastDuration = 1500;
 
   function onChange(e) {
     setPost(() => ({ ...post, [e.target.name]: e.target.value }));
@@ -26,7 +29,10 @@ function CreatePost() {
       .single();
 
     if (!userInfo) {
-      alert("Please set up your account first!");
+      let confirmed = false;
+      while(!confirmed) {
+        confirmed = confirm("Sign up successful! Please Set up your account");
+      }
       router.push("/settings");
       return;
     }
@@ -52,7 +58,8 @@ function CreatePost() {
 
         console.log(post);
         if (status == 201 && !error) {
-          alert("Posted successfully!");
+          setToastShow(true)
+          await new Promise(r => setTimeout(r, toastDuration));
           router.push("/main-page");
         } else {
           alert(error);
@@ -108,6 +115,18 @@ function CreatePost() {
           </Button>
         </Stack>
       </Stack>
+      <ToastContainer className="p-3" position="bottom-end">
+        <Toast 
+            onClose={() => setToastShow(false)} 
+            show={toastShow} 
+            delay={toastDuration} 
+            autohide >
+          <Toast.Header>
+            <strong className="me-auto">SUCCESS</strong>
+          </Toast.Header>
+          <Toast.Body>Post created successfully! Refreshing Soon ...</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </Container>
   );
 }

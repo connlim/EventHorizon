@@ -59,7 +59,7 @@ export default function Comment({ idx, data }) {
                   className="align-items-center my-2"
                 >
                   <Avatar url={avatarUrl} size={24} circle />
-                  {user == null || data.user_id != user ? <div>{data.username}</div> : <div>Me</div>}
+                  {user == null || data.user_id != user ? <strong>{data.username}</strong> : <strong>Me</strong>}
                 </Stack>
               </Col>
             </Row>
