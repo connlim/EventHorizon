@@ -29,7 +29,7 @@ function CreatePost() {
       .single();
 
     if (!userInfo) {
-      alert("Sign up successful! Please Set up your account");
+      alert("Ohno your user info cannot be found at the moment!\nCheck if you have setup your profile in settings page?");
       router.push("/settings");
       return;
     }

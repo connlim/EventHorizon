@@ -21,7 +21,7 @@ import { BiCommentDetail } from "react-icons/bi";
 import { supabase } from "../utils/supabaseClient";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Router from "next/router";
+import { Router, useRouter }from "next/router";
 import { useUser } from "../context/user";
 
 import Avatar from "./avatar";
@@ -48,6 +48,8 @@ export default function Post({ idx, data }) {
   const [comments, setComments] = useState(null);
   const [loading, setLoading] = useState(false);
   const postID = data.id
+
+  const router = useRouter();
 
   const [delPostToastShow, setDelPostToastShow] = useState(false);
   const toastDuration = 2000;
@@ -257,7 +259,8 @@ export default function Post({ idx, data }) {
     .single()
 
     if(userError) {
-      alert("Ohno your user info cannot be found at the moment! Try again later!");
+      alert("Ohno your user info cannot be found at the moment!\nCheck if you have setup your profile in settings page?");
+      router.push("/settings");
       return;
     }
 

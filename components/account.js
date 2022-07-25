@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button, Container, Form } from "react-bootstrap";
+import { Button, Container, Form, Toast, ToastContainer } from "react-bootstrap";
 
 import { supabase } from "../utils/supabaseClient";
 import AvatarUpload from "./avatarUpload";
@@ -10,6 +10,9 @@ export default function Account({ session }) {
   const [bio, setBio] = useState(null);
   const [avatar_url, setAvatarUrl] = useState(null);
   const [userEmail, setEmail] = useState("null");
+
+  const [updatedToast, setUpdatedToast] = useState(false);
+  const toastDuration = 1500;
 
   console.log(session);
 
@@ -49,6 +52,12 @@ export default function Account({ session }) {
     try {
       setLoading(true);
       const user = supabase.auth.user();
+      if(username == null || username.length == 0) {
+        const truncatedID = String(supabase.auth.user().id).substring(0,6);
+        let useDefault = confirm("You did not set a username!\nUse default username: user" + truncatedID + "?");
+        if (!useDefault) return;
+        username = "user" + truncatedID;
+      }
 
       const updates = {
         id: user.id,
@@ -65,13 +74,14 @@ export default function Account({ session }) {
       if (error) {
         throw error;
       } else {
-        alert("Updated successful!");
+        setUpdatedToast(true);
       }
     } catch (error) {
       alert(error.message);
     } finally {
       setLoading(false);
     }
+    return;
   }
 
   return (
@@ -120,6 +130,18 @@ export default function Account({ session }) {
           {loading ? "Loading ..." : "Update"}
         </Button>
       </Form>
+      <ToastContainer className="p-3" position="bottom-end">
+        <Toast 
+            onClose={() => setUpdatedToast(false)} 
+            show={updatedToast} 
+            delay={toastDuration} 
+            autohide >
+          <Toast.Header>
+            <strong className="me-auto">SUCCESS</strong>
+          </Toast.Header>
+          <Toast.Body>Profile updated successfully!</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </Container>
   );
 }
