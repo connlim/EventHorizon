@@ -1,0 +1,90 @@
+.container {
+    left: 50%;
+    margin-left: -50px;
+    margin-bottom: 2rem;
+    height: 640px;
+    width: 1300px;
+    display: flex;
+}
+
+.media {
+    border: 1px solid white;
+    height: 640px;
+    width: 640px;
+    display: flex;
+    align-items: center; /* Vertical */
+    justify-content: center; /* Horizontal */
+}
+
+.postDetails {
+    left: 50%;
+    padding-left: 1rem;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px dashed white;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    margin-left: 34.5%;
+    margin-right: auto;
+}
+
+.userName {
+    font-size: 32px;
+    font-weight: bold;
+    align-self: center;
+}
+
+.stamp {
+    font-size: 16px;
+    align-self: center;
+}
+
+.footer {
+    display: flex;
+    justify-content: center;
+    margin-top: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.score {
+    font-size: 24px;
+    margin-left: 4rem;
+    margin-right: 4rem;
+    vertical-align:auto;
+}
+
+.vote {
+  /* background-color: var(--custom-color-brand); */
+  font-size: 24px;
+  width: 4rem;
+  height: 2rem;
+  padding: 0 0 0 0;
+  align-self: center;
+}
+
+.popupMenuButton {
+    border: none;
+    float: right;
+    height: 4rem;
+    width: 10%;
+}
+
+.popupMenu{
+    width: min-content;
+    height: min-content;
+}
+
+.popupMenuItem{
+    border: 1px solid white;
+    border-bottom: none;
+    background-color: rgb(52, 52, 52);
+    width: 8rem;
+    height: 2rem;
+    text-align: center;
+    display: block;
+}
